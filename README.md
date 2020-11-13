@@ -16,9 +16,13 @@ Required Dependencies
 
 **libjpeg:** sudo apt-get install libjpeg-dev
 
-**libpng:** sudo apt-get install libpng-dev
+**libpng:** sudo apt-get install libpng16-dev
+
+It seems that libpng12-dev would not work. Needs libpng16-dev instead.
 
 **tinyxml:** sudo apt-get install libtinyxml-dev
+
+**libassimp:** sudo apt-get install libassimp-dev assimp-utils
 
 Optional Dependencies
 ---------------------

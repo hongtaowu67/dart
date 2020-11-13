@@ -12,6 +12,7 @@ add_definitions(-std=c++11)
 # set CMakeModule path
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/CMakeModules/")
 
+set(OpenGL_GL_PREFERENCE LEGACY)
 # find packages with modules
 find_package(CUDA REQUIRED)
 find_package(PNG REQUIRED)
