@@ -169,6 +169,7 @@ void ModelRenderer::renderMesh(const uint meshNum) const {
 
 const Mesh & ModelRenderer::getMesh(const uint meshNum) const {
 
+    std::cout << "in get mesh" << std::endl;
     return *_meshes[meshNum];
 
 }

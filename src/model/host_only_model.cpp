@@ -263,6 +263,7 @@ void HostOnlyModel::voxelize(float resolution, float padding, std::string cacheF
 
         _sdfColors.push_back(getGeometryColor(getFrameGeoms(i)[getFrameNumGeoms(i)-1]));
         _sdfs.push_back(Grid3D<float>());
+
         if (cacheFile != "" && stat(filename.c_str(), &buffer) == 0) {
             std::cout << "sdf cached at " << filename << std::endl;
             std::ifstream stream;
@@ -275,14 +276,16 @@ void HostOnlyModel::voxelize(float resolution, float padding, std::string cacheF
             stream.read((char*)_sdfs[n].data,sdfSize*sizeof(float));
             stream.close();
         } else {
+            std::cout << "++++Start voxelizeFrame" << std::endl;
             voxelizeFrame(_sdfs[n],i,0.0,1e20,resolution,padding);
-
+            std::cout << "++++Finish voxelizeFrame" << std::endl;
             //        distanceTransform3D(_voxel_grids[n].data,_voxel_grids[n].dim.x,_voxel_grids[n].dim.y,_voxel_grids[n].dim.z,true);
             //        cpu::signedDistanceTransform3D(_voxel_grids[n].data,_voxel_grids[n].dim.x,_voxel_grids[n].dim.y,_voxel_grids[n].dim.z,true);
             //        gpu::signedDistanceTransform3D<float,true>(_voxel_grids[n].data,_voxel_grids[n].dim);
             //        sdkStopTimer(&dt_timer);
 
             const int nVoxels = _sdfs[n].dim.x*_sdfs[n].dim.y*_sdfs[n].dim.z;
+            std::cout << "++++Finish nVoxels" << std::endl;
 #if CUDA_BUILD
             float * sdfIn; cudaMalloc(&sdfIn,nVoxels*sizeof(float));
             float * sdfOut; cudaMalloc(&sdfOut,nVoxels*sizeof(float));
@@ -521,9 +524,13 @@ void HostOnlyModel::voxelizeFrame(Grid3D<float> &sdf, const int frame, const flo
     min_x = min_y = min_z = std::numeric_limits<float>::infinity();
     max_x = max_y = max_z = -std::numeric_limits<float>::infinity();
 
+    std::cout << "Geometry Num: " << getFrameNumGeoms(frame) << std::endl;
+
     // compute geometry extrema (int geometric units)
     for (int g = 0; g < getFrameNumGeoms(frame); g++) {
         int geom = getFrameGeoms(frame)[g];
+
+        std::cout << "geom: " << geom << std::endl;
 
         float p[9];
         const float3 geomScale = getGeometryScale(geom);
@@ -577,6 +584,7 @@ void HostOnlyModel::voxelizeFrame(Grid3D<float> &sdf, const int frame, const flo
             }
             break;
         case MeshType:
+            std::cout << "MeshNumber: " << getMeshNumber(geom) << std::endl;
             const Mesh& mesh = _renderer->getMesh(getMeshNumber(geom));
             Mesh transformedMesh(mesh);
             scaleMesh(transformedMesh,make_float3(p[0],p[1],p[2]));
@@ -615,6 +623,7 @@ void HostOnlyModel::voxelizeFrame(Grid3D<float> &sdf, const int frame, const flo
 
             break;
         }
+
 
         min_x = std::min(min_x,o[0]);
         max_x = std::max(max_x,o[0]+s[0]);

@@ -408,7 +408,7 @@ ParamMapPoseReduction * loadParamMapPoseReduction(std::string filename) {
     for (int r=0; r<reducedDimensions; ++r) {
         getline(fstream,name);
         names.push_back(name);
-//        std::cout << r << ": " << name << std::endl;
+        std::cout << r << ": " << name << std::endl;
     }
 
     fstream.close();

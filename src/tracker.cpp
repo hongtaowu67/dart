@@ -81,13 +81,20 @@ bool Tracker::addModel(const std::string & filename,
     const int substrStart = lastSlash < filename.size() ? lastSlash + 1: 0;
     const std::string modelName = filename.substr(substrStart, diff > 0 ? diff : filename.size() - substrStart);
     std::cout << "model name: " << modelName << std::endl;
-
+    
 //    // TODO
 //    if (model.getNumGeoms() < 2) {
 //        model.voxelize2(modelSdfResolution,modelSdfPadding,cacheSdfs ? dart::stringFormat("model%02d",_mirroredModels.size()) : "");
 //    } else {
-        model.voxelize(modelSdfResolution,modelSdfPadding,cacheSdfs ? dart::stringFormat("/tmp/%s",modelName.c_str()) : "");
+    std::cout << "modelSdfResolution: " << modelSdfResolution << std::endl;
+    std::cout << "modelSdfPadding: " << modelSdfPadding << std::endl;
+    // std::cout << "cacheSdfs" << cacheSdfs ? dart::stringFormat("/tmp/%s",modelName.c_str()) : "" << std::endl;
+    std::cout << "model name: " << modelName.c_str() << std::endl;
+        // model.voxelize(modelSdfResolution,modelSdfPadding,cacheSdfs ? dart::stringFormat("/tmp/%s",modelName.c_str()) : "");
+        model.voxelize(modelSdfResolution,modelSdfPadding,dart::stringFormat("/tmp/%s",modelName.c_str()));
 //    }
+
+    std::cout << "===Finish voxelizing" << std::endl;
 
     if (obsSdfResolution <= 0 ) {
         // compute obs sdf size dynamically

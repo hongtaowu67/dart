@@ -1,0 +1,104 @@
+# Study Note of Dart Example
+
+# IO
+objectModelFile = "../model/ikeaMug/ikeaMug.xml";
+objObsSdfRes, objObsSdfOffset
+
+videoLoc = "../video/"
+
+# CUDA
+cudaSetDevice(0);
+cudaDeviceReset();
+
+# Pangolin
+pangolin::CreateWindowAndBind(...)
+
+# Dart
+dart::Tracker tracker;
+
+defaultModelSdfPadding = 0.07;
+
+dart::ImageDepthSource<ushort, uchar3> * depthSource
+
+depthSource->initialize(depthDirectory, 
+                        depthImageType,
+                        focalLength,
+                        principalPoint,
+                        depthWidth,
+                        depthHeight,
+                        scaleToMeters,
+                        depthTimes)  
+
+*depthTimes seems to be the timestamp information. This may be not very useful.*
+
+tracker.addDepthSouce(depthSource);
+
+dart::Optimizer & optimizer = *tracker.getOptimizer;
+
+obsSdfSize = 64, obsSdfResolution = 0.01*32/obsSdfSize, defaultModelSdfResolution = 2e-3, obsSdfOffset = make_float3(0, 0, 0.1)
+
+dart::ParamMapPoseReduction* handPoseReduction = dart::loadParamMapPoseReduction("...") 
+This is used to reduce the hand pose DoF. For example, decrease DoF from 20 to 15.
+
+tracker.addModel("...spaceJustinHandRight.xml",
+                 modelSdfResolution,
+                 modelSdfPadding,
+                 obsSdfSize,
+                 obsSdfResolution,
+                 obsSdfOffset,
+                 poseReduction,
+                 collisionCloudDensity=1e5,
+                 cacheSdfs=true)
+
+dart::PosePrior reportedPosePrior(tracker.getPose(0).getReducedDimensions());
+
+dart::HostOnlyModel spaceJustin; // This seems to be the model for the whole Space Justin
+
+dart::readModelXML("...spaceJustinArmsAndHead.xml", spaceJustin);
+
+spaceJustin.computeStructure(); // Initialize positions, orientations, axes, jointLimit, joints etc..
+
+dart::LinearPoseReduction *justinPoseReduction = dart::loadLinearPoseReduction("spaceJustinPoseReduction.txt")
+
+dart::Pose spaceJustinPose(justinPoseReduction)
+
+tracker.addModel("ikeaMug.xml");
+tracker.addModel("spaceJustinHandLeft.xml")
+
+dart::OptimizationOptions &opts = tracker.getOptions();
+...
+
+initialContact = make_float3(0, 0.02, 0);
+std::vector<dart::ContactPrior *> contactPriors;
+
+// set up potential intersections
+{
+    int *selfIntersectionMatrix = dart::loadSelfIntersectionMatrix("justinIntersaction.txt", tracker.getModel(0).getNumSdfs());
+}
+
+dart::MirroredModel &rightHand = tracker.getModel(0);
+dart::MirroredModel &leftHand = tracker.getModel(2);
+dart::MirroredModel &object = tracker.getModel(1);
+
+dart::Pose &rightHandPose = tracker.getPose(0);
+dart::Pose &leftHandPose = tracker.getPose(2);
+dart::Pose &objectPose = tracker.getPose(1);
+
+// Load reported jointed angles
+std::vector<float *> reportedJointAngles;
+std::vector<int *> reportedContacts;
+loadReportedJointAngleAndContacts("reportedJointAngle.txt", "reportedContacts.txt", ...)
+
+// Set up initial pose
+spaceJustinPose.setTransformModelToCamera(initialT_cj); // initialT_cj is set at the front
+spaceJustinPose.projectReducedToFull();
+spaceJustin.setPose(spaceJustinPose);
+
+// rightPalmFrame is set at front, it is an index
+rightHandPose.setTransformModelToCamera(spaceJustin.getTransformFrameToCamera(rightPalmFrame*T_wh)); // T_wh is defined somewhere at the front
+rightHand.setPose(rightHandPose);
+
+// leftPalmFrame is set at front, it is an index
+leftHandPose.setTransformModelToCamera(spaceJustin.getTransformFrameToCamera(leftPalmFramwe)*T_wh);
+leftHand.setPose(leftHandPose)
+
